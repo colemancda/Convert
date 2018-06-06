@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		DB81FBA320C7E5DA0060877A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBA220C7E5DA0060877A /* main.swift */; };
+		DB81FBAA20C7E60E0060877A /* ShellOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBA920C7E60E0060877A /* ShellOut.swift */; };
+		DB81FBC520C7E8980060877A /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC420C7E8980060877A /* Files.swift */; };
+		DB81FBC720C7FC570060877A /* Converter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC620C7FC570060877A /* Converter.swift */; };
+		DB81FBC920C7FC950060877A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC820C7FC950060877A /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +29,11 @@
 /* Begin PBXFileReference section */
 		DB81FB9F20C7E5DA0060877A /* Convert */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Convert; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB81FBA220C7E5DA0060877A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		DB81FBA920C7E60E0060877A /* ShellOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShellOut.swift; sourceTree = "<group>"; };
+		DB81FBC420C7E8980060877A /* Files.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Files.swift; sourceTree = "<group>"; };
+		DB81FBC620C7FC570060877A /* Converter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Converter.swift; sourceTree = "<group>"; };
+		DB81FBC820C7FC950060877A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		DB81FBCA20C7FDD80060877A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +50,7 @@
 		DB81FB9620C7E5DA0060877A = {
 			isa = PBXGroup;
 			children = (
+				DB81FBCA20C7FDD80060877A /* README.md */,
 				DB81FBA120C7E5DA0060877A /* Convert */,
 				DB81FBA020C7E5DA0060877A /* Products */,
 			);
@@ -58,6 +68,10 @@
 			isa = PBXGroup;
 			children = (
 				DB81FBA220C7E5DA0060877A /* main.swift */,
+				DB81FBC620C7FC570060877A /* Converter.swift */,
+				DB81FBC820C7FC950060877A /* Extensions.swift */,
+				DB81FBA920C7E60E0060877A /* ShellOut.swift */,
+				DB81FBC420C7E8980060877A /* Files.swift */,
 			);
 			path = Convert;
 			sourceTree = "<group>";
@@ -94,6 +108,7 @@
 				TargetAttributes = {
 					DB81FB9E20C7E5DA0060877A = {
 						CreatedOnToolsVersion = 10.0;
+						LastSwiftMigration = 1000;
 					};
 				};
 			};
@@ -119,7 +134,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB81FBC920C7FC950060877A /* Extensions.swift in Sources */,
 				DB81FBA320C7E5DA0060877A /* main.swift in Sources */,
+				DB81FBC520C7E8980060877A /* Files.swift in Sources */,
+				DB81FBC720C7FC570060877A /* Converter.swift in Sources */,
+				DB81FBAA20C7E60E0060877A /* ShellOut.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,7 +264,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 647GR2UNM5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -255,7 +274,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 647GR2UNM5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
