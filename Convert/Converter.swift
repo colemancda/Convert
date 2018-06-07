@@ -22,6 +22,9 @@ enum AudioCodec: String {
 struct Converter {
     enum Error: Swift.Error {
         case unknownFileType
+        var localizedDescription: String {
+            return "The file type you have entered is unknown."
+        }
     }
     
     private let videoFile: File
@@ -34,7 +37,9 @@ struct Converter {
         let vcodec = try self.videoFile.videoCodec()
         let acodec = try self.videoFile.audioCodec()
         let size = try self.videoFile.size()
-        self.ffmpegArgs = try Converter.buildArgs(forceHEVC, vcodec, acodec, size)
+        self.ffmpegArgs = ["-i", "\"\(self.videoFile.path)\"", "-map_metadata", "-1"]
+        try self.ffmpegArgs.append(contentsOf: Converter.buildArgs(forceHEVC, vcodec, acodec, size))
+        self.ffmpegArgs.append("\"\(self.outputPath)\"")
     }
     
     init(videoFile: File, forceHEVC: Bool) throws {
@@ -43,7 +48,9 @@ struct Converter {
         let vcodec = try self.videoFile.videoCodec()
         let acodec = try self.videoFile.audioCodec()
         let size = try self.videoFile.size()
-        self.ffmpegArgs = try Converter.buildArgs(forceHEVC, vcodec, acodec, size)
+        self.ffmpegArgs = ["-i", self.videoFile.path]
+        try self.ffmpegArgs.append(contentsOf: Converter.buildArgs(forceHEVC, vcodec, acodec, size))
+        self.ffmpegArgs.append(self.outputPath)
     }
     
     private static func buildArgs(_ forceHEVC: Bool, _ vcodec: VideoCodec?, _ acodec: AudioCodec?, _ size: Int) throws -> [String] {
@@ -60,10 +67,13 @@ struct Converter {
     }
     
     private func convert() throws {
+        print("\nConverting...")
+        print(self.ffmpegArgs)
         try shellOut(to: "ffmpeg", arguments: self.ffmpegArgs)
         let destinationFolder = self.videoFile.parent!
         try self.videoFile.trash()
         try File(path: self.outputPath).move(to: destinationFolder)
+        print("Done!")
     }
     
     static func convert(path: String, forceHEVC: Bool) throws {
