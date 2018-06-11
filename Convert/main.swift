@@ -30,5 +30,5 @@ func installDependencies() throws {
     }
 }
 
-try installDependencies()
+// try installDependencies()
 try Converter.convert(path: CommandLine.arguments[2], forceHEVC: Bool(CommandLine.arguments[1]))
