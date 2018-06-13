@@ -9,25 +9,15 @@
 import Foundation
 
 func installDependencies() throws {
-    if try shellOut(to: "which", arguments: ["brew"]).isEmpty {
-        // Install Homebrew
-        try shellOut(to: "/usr/bin/ruby", arguments: [
-            "-e",
-            "\"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
-        ])
-        // Update outdated macOS packages
-        try shellOut(to: "brew", arguments: ["install", "bash"])
-    }
-    
     // FFmpeg
-    if try shellOut(to: "which", arguments: ["ffmpeg"]).isEmpty {
-        try shellOut(to: "brew", arguments: ["install", "ffmpeg", "--with-x265", "--with-fdk-aac", "--HEAD"])
+    if try !Command.which("ffmpeg") {
+        try Command.brewInstall("ffmpeg", options: ["--with-x265", "--with-fdk-aac", "--HEAD"])
     }
     
     // Trash
-    if try shellOut(to: "which", arguments: ["trash"]).isEmpty {
-        try shellOut(to: "brew", arguments: ["install", "trash"])
-    }
+    if try !Command.which("trash") {
+        try Command.brewInstall("trash")
+    }    
 }
 
 // try installDependencies()

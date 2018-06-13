@@ -8,18 +8,18 @@
 
 import Foundation
 
-enum VideoCodec: String {
-    case h264
-    case hevc
-}
-
-enum AudioCodec: String {
-    case ac3
-    case eac3
-    case aac
-}
-
 struct Converter {
+    enum VideoCodec: String {
+        case h264
+        case hevc
+    }
+    
+    enum AudioCodec: String {
+        case ac3
+        case eac3
+        case aac
+    }
+    
     enum Error: Swift.Error {
         case unknownFileType
         var localizedDescription: String {
@@ -37,9 +37,11 @@ struct Converter {
         let vcodec = try self.videoFile.videoCodec()
         let acodec = try self.videoFile.audioCodec()
         let size = try self.videoFile.size()
-        self.ffmpegArgs = ["-i", "\"\(self.videoFile.path)\"", "-map_metadata", "-1"]
-        try self.ffmpegArgs.append(contentsOf: Converter.buildArgs(forceHEVC, vcodec, acodec, size))
-        self.ffmpegArgs.append("\"\(self.outputPath)\"")
+        self.ffmpegArgs = try Converter.buildArgs(
+            path: self.videoFile.path,
+            output: self.outputPath,
+            forceHEVC, vcodec, acodec, size
+        )
     }
     
     init(videoFile: File, forceHEVC: Bool) throws {
@@ -48,12 +50,14 @@ struct Converter {
         let vcodec = try self.videoFile.videoCodec()
         let acodec = try self.videoFile.audioCodec()
         let size = try self.videoFile.size()
-        self.ffmpegArgs = ["-i", self.videoFile.path]
-        try self.ffmpegArgs.append(contentsOf: Converter.buildArgs(forceHEVC, vcodec, acodec, size))
-        self.ffmpegArgs.append(self.outputPath)
+        self.ffmpegArgs = try Converter.buildArgs(
+            path: self.videoFile.path,
+            output: self.outputPath,
+            forceHEVC, vcodec, acodec, size
+        )
     }
     
-    private static func buildArgs(_ forceHEVC: Bool, _ vcodec: VideoCodec?, _ acodec: AudioCodec?, _ size: Int) throws -> [String] {
+    private static func buildArgs(path: String, output: String, _ forceHEVC: Bool, _ vcodec: VideoCodec?, _ acodec: AudioCodec?, _ size: Int) throws -> [String] {
         let convertVideo = (vcodec == nil) || forceHEVC
         let convertAudio = (acodec == nil) || forceHEVC
         let addCompression = size > 3_000_000_000
@@ -63,16 +67,18 @@ struct Converter {
         let videoQuality = (convertVideo && addCompression) ? ["-preset", "veryfast", "-crf", "25"] : []
         let audioCommands = convertAudio ? ["-c:a", "libfdk_aac", "-b:a", "320k"] : ["-acodec", "copy"]
         
-        return videoCommands + videoTag + videoQuality + audioCommands
+        return ["-i", path.encapsulated(), "-map_metadata", "-1"] + videoCommands + videoTag + videoQuality + audioCommands + [output.encapsulated()]
     }
     
     private func convert() throws {
         print("\nConverting...")
-        print(self.ffmpegArgs)
-        try shellOut(to: "ffmpeg", arguments: self.ffmpegArgs)
+        try Command.run(.ffmpeg, arguments: self.ffmpegArgs)
+        print("Finished running ffmpeg.")
         let destinationFolder = self.videoFile.parent!
         try self.videoFile.trash()
+        print("Trashed.")
         try File(path: self.outputPath).move(to: destinationFolder)
+        print("Moved.")
         print("Done!")
     }
     

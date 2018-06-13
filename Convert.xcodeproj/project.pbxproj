@@ -12,6 +12,7 @@
 		DB81FBC520C7E8980060877A /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC420C7E8980060877A /* Files.swift */; };
 		DB81FBC720C7FC570060877A /* Converter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC620C7FC570060877A /* Converter.swift */; };
 		DB81FBC920C7FC950060877A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81FBC820C7FC950060877A /* Extensions.swift */; };
+		DBC3FE9120D0DB0C007290A5 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC3FE9020D0DB0C007290A5 /* Command.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +35,7 @@
 		DB81FBC620C7FC570060877A /* Converter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Converter.swift; sourceTree = "<group>"; };
 		DB81FBC820C7FC950060877A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		DB81FBCA20C7FDD80060877A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		DBC3FE9020D0DB0C007290A5 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				DB81FBA220C7E5DA0060877A /* main.swift */,
 				DB81FBC620C7FC570060877A /* Converter.swift */,
 				DB81FBC820C7FC950060877A /* Extensions.swift */,
+				DBC3FE9020D0DB0C007290A5 /* Command.swift */,
 				DB81FBA920C7E60E0060877A /* ShellOut.swift */,
 				DB81FBC420C7E8980060877A /* Files.swift */,
 			);
@@ -135,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB81FBC920C7FC950060877A /* Extensions.swift in Sources */,
+				DBC3FE9120D0DB0C007290A5 /* Command.swift in Sources */,
 				DB81FBA320C7E5DA0060877A /* main.swift in Sources */,
 				DB81FBC520C7E8980060877A /* Files.swift in Sources */,
 				DB81FBC720C7FC570060877A /* Converter.swift in Sources */,
@@ -263,6 +267,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 647GR2UNM5;
+				LD_RUNPATH_SEARCH_PATHS = /usr/local/bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 			};
@@ -273,6 +278,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 647GR2UNM5;
+				LD_RUNPATH_SEARCH_PATHS = /usr/local/bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 			};
