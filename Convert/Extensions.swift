@@ -44,7 +44,7 @@ extension Bool {
 
 extension File {
     func trash() throws {
-        try Command.run(.trash, arguments: "\(self.path.encapsulated())")
+        try Command.run(.trash, arguments: self.path.encapsulated())
     }
     
     private enum MediaType {
@@ -71,7 +71,7 @@ extension File {
             "stream=codec_name",
             "-of",
             "default=nokey=1:noprint_wrappers=1",
-            "\(self.path.encapsulated())"
+            self.path.encapsulated()
         ])
     }
     

@@ -73,10 +73,18 @@
 				DB81FBC620C7FC570060877A /* Converter.swift */,
 				DB81FBC820C7FC950060877A /* Extensions.swift */,
 				DBC3FE9020D0DB0C007290A5 /* Command.swift */,
+				DBC3FE9220D0E2E2007290A5 /* Dependencies */,
+			);
+			path = Convert;
+			sourceTree = "<group>";
+		};
+		DBC3FE9220D0E2E2007290A5 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
 				DB81FBA920C7E60E0060877A /* ShellOut.swift */,
 				DB81FBC420C7E8980060877A /* Files.swift */,
 			);
-			path = Convert;
+			path = Dependencies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
