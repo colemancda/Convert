@@ -20,10 +20,20 @@ struct Converter {
         case aac
     }
     
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, LocalizedError {
+        case unknownError(stderr: String, statusCode: Int)
         case unknownFileType
-        var localizedDescription: String {
-            return "The file type you have entered is unknown."
+        case noSuchFileOrDirectory
+        
+        var errorDescription: String? {
+            switch self {
+            case let .unknownError(err, code):
+                return NSLocalizedString("An unknown error with status \(code) occured: \(err)", comment: "")
+            case .unknownFileType:
+                return NSLocalizedString("The file you are trying to convert is invalid or may not exist.", comment: "")
+            case .noSuchFileOrDirectory:
+                return NSLocalizedString("The file you are trying to convert does not exist.", comment: "")
+            }
         }
     }
     

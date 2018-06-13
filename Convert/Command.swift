@@ -98,11 +98,16 @@ private extension Process {
         // and then read the data back out.
         return try outputQueue.sync {
             if terminationStatus != 0 {
-                throw ShellOutError(
-                    terminationStatus: terminationStatus,
-                    errorData: errorData,
-                    outputData: outputData
-                )
+                let errorMessage = errorData.shellOutput()
+                
+                if errorMessage.contains("No such file or directory") {
+                    throw Converter.Error.noSuchFileOrDirectory
+                } else {
+                    throw Converter.Error.unknownError(
+                        stderr: errorMessage,
+                        statusCode: Int(terminationStatus)
+                    )
+                }
             }
             
             return outputData.shellOutput()
