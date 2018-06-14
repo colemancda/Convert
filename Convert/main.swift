@@ -21,8 +21,8 @@ func installDependencies() throws {
 }
 
 do {
-    // try installDependencies()
+    try installDependencies()
     try Converter.convert(path: CommandLine.arguments[2], forceHEVC: Bool(CommandLine.arguments[1]))
 } catch {
-    print("Conversion error: \(error.localizedDescription)")
+    print("\nConversion error: \(error.localizedDescription)\n")
 }

@@ -94,6 +94,9 @@ private extension Process {
         outputPipe.fileHandleForReading.readabilityHandler = nil
         errorPipe.fileHandleForReading.readabilityHandler = nil
         
+//        print(errorData.shellOutput())
+//        print(outputData.shellOutput())
+        
         // Block until all writes have occurred to outputData and errorData,
         // and then read the data back out.
         return try outputQueue.sync {

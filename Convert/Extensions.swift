@@ -34,6 +34,18 @@ extension String {
             return false
         }
     }
+    
+    func isEqual(to conditions: [String]) -> Bool {
+        if conditions.contains(self) {
+            return true
+        }
+        
+        return false
+    }
+    
+    func expandingTildeInPath() -> String {
+        return self.replacingOccurrences(of: "~/", with: FileSystem().homeFolder.path)
+    }
 }
 
 extension Bool {
@@ -96,4 +108,8 @@ extension File {
         
         return nil
     }
+}
+
+public func NSLocalizedString(_ key: String) -> String {
+    return NSLocalizedString(key, comment: "")
 }

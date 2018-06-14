@@ -28,11 +28,11 @@ struct Converter {
         var errorDescription: String? {
             switch self {
             case let .unknownError(err, code):
-                return NSLocalizedString("An unknown error with status \(code) occured: \(err)", comment: "")
+                return NSLocalizedString("An unknown error with status \(code) occured: \(err)")
             case .unknownFileType:
-                return NSLocalizedString("The file you are trying to convert is invalid or may not exist.", comment: "")
+                return NSLocalizedString("The file you are trying to convert is invalid or may not exist.")
             case .noSuchFileOrDirectory:
-                return NSLocalizedString("The file you are trying to convert does not exist.", comment: "")
+                return NSLocalizedString("The file you are trying to convert does not exist.")
             }
         }
     }
@@ -41,7 +41,7 @@ struct Converter {
     private let outputPath: String
     private var ffmpegArgs: [String]
     
-    init(videoPath: String, forceHEVC: Bool) throws {
+    init(_ videoPath: String, forceHEVC: Bool) throws {
         self.videoFile = try File(path: videoPath)
         self.outputPath = "\(FileSystem().temporaryFolder.path)\(self.videoFile.nameExcludingExtension).mp4"
         let vcodec = try self.videoFile.videoCodec()
@@ -54,17 +54,8 @@ struct Converter {
         )
     }
     
-    init(videoFile: File, forceHEVC: Bool) throws {
-        self.videoFile = videoFile
-        self.outputPath = "\(FileSystem().temporaryFolder.path)\(self.videoFile.nameExcludingExtension).mp4"
-        let vcodec = try self.videoFile.videoCodec()
-        let acodec = try self.videoFile.audioCodec()
-        let size = try self.videoFile.size()
-        self.ffmpegArgs = try Converter.buildArgs(
-            path: self.videoFile.path,
-            output: self.outputPath,
-            forceHEVC, vcodec, acodec, size
-        )
+    init(_ videoFile: File, forceHEVC: Bool) throws {
+        try self.init(videoFile.path, forceHEVC: forceHEVC)
     }
     
     private static func buildArgs(path: String, output: String, _ forceHEVC: Bool, _ vcodec: VideoCodec?, _ acodec: AudioCodec?, _ size: Int) throws -> [String] {
@@ -93,32 +84,29 @@ struct Converter {
     }
     
     static func convert(path: String, forceHEVC: Bool) throws {
-        if path.isDirectory {
+        let expandedPath = path.expandingTildeInPath()
+        
+        if expandedPath.isDirectory {
             for (_, file) in try Folder(path: path).files.enumerated() {
                 // Only convert video files
-                if file.extension != "mp4" &&
-                    file.extension != "mkv" &&
-                    file.extension != "avi" &&
-                    file.extension != "webm" {
+                if let ext = file.extension, !ext.isEqual(to: ["mp4", "mkv", "avi", "webm"]) {
                     continue
                 }
-                
-                let vcodec = try file.videoCodec()
                 
                 // If compressing, ignore mp4 HEVC files, already compressed
-                if forceHEVC && (file.extension == "mp4") && (vcodec == .hevc) {
+                if try forceHEVC && (file.extension == "mp4") && (file.videoCodec() == .hevc) {
                     continue
                 }
                 
-                // If converting, ignore mp4 files -- they're already converted
+                // If not compressing (i.e. converting), ignore mp4 files -- they're already converted
                 if !forceHEVC && (file.extension == "mp4") {
                     continue
                 }
                 
-                try Converter(videoFile: file, forceHEVC: forceHEVC).convert()
+                try Converter(file, forceHEVC: forceHEVC).convert()
             }
-        } else if path.isFile {
-            try Converter(videoPath: path, forceHEVC: forceHEVC).convert()
+        } else if expandedPath.isFile {
+            try Converter(expandedPath, forceHEVC: forceHEVC).convert()
         } else {
             throw Error.unknownFileType
         }
