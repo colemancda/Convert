@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ShellOut
 
 struct Command {
     enum Executable: String {
@@ -31,13 +30,19 @@ struct Command {
     
     static func which(_ program: String) throws -> Bool {
         // True if program exists, false if not
-        return try !shellOut(to: "which", arguments: [program]).isEmpty
+        let process = Process()
+        process.launchPath = "/usr/bin/which"
+        process.arguments = [program]
+        process.environment = ProcessInfo.processInfo.environment
+        return try !process.launchWithOutput().isEmpty
     }
     
     static func brewInstall(_ packageName: String, options: [String] = []) throws {
         if try !Command.which("brew") {
             try Command.installHomebrew()
         }
+
+        print("Installing \(packageName)...")
         
         let process = Process()
         process.launchPath = "/usr/local/bin/brew"
@@ -46,6 +51,7 @@ struct Command {
     }
     
     private static func installHomebrew() throws {
+        print("Installing homebrew...")
         let process = Process()
         process.launchPath = "/usr/bin/ruby"
         process.arguments = [
@@ -59,10 +65,6 @@ struct Command {
 private extension Process {
     @discardableResult
     func launchWithOutput(outputHandle: FileHandle? = nil, errorHandle: FileHandle? = nil) throws -> String {
-        let outputQueue = DispatchQueue(label: "bash-output-queue")
-        
-        var outputData = Data()
-        var errorData = Data()
         
         let outputPipe = Pipe()
         standardOutput = outputPipe
@@ -70,51 +72,26 @@ private extension Process {
         let errorPipe = Pipe()
         standardError = errorPipe
         
-        outputPipe.fileHandleForReading.readabilityHandler = { handler in
-            outputQueue.async {
-                let data = handler.availableData
-                outputData.append(data)
-                outputHandle?.write(data)
+        self.launch()
+
+        self.waitUntilExit()
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        
+        switch self.terminationStatus {
+        case 0: return outputData.shellOutput()
+        case 1: return ""
+        default:
+            let errorMessage = errorData.shellOutput()
+
+            if errorMessage.contains("No such file or directory") {
+                throw Converter.Error.noSuchFileOrDirectory
+            } else {
+                throw Converter.Error.unknownError(
+                    stderr: errorMessage,
+                    statusCode: Int(terminationStatus)
+                )
             }
-        }
-        
-        errorPipe.fileHandleForReading.readabilityHandler = { handler in
-            outputQueue.async {
-                let data = handler.availableData
-                errorData.append(data)
-                errorHandle?.write(data)
-            }
-        }
-        
-        launch()
-        waitUntilExit()
-        
-        outputHandle?.closeFile()
-        errorHandle?.closeFile()
-        
-        outputPipe.fileHandleForReading.readabilityHandler = nil
-        errorPipe.fileHandleForReading.readabilityHandler = nil
-        
-//        print(errorData.shellOutput())
-//        print(outputData.shellOutput())
-        
-        // Block until all writes have occurred to outputData and errorData,
-        // and then read the data back out.
-        return try outputQueue.sync {
-            if terminationStatus != 0 {
-                let errorMessage = errorData.shellOutput()
-                
-                if errorMessage.contains("No such file or directory") {
-                    throw Converter.Error.noSuchFileOrDirectory
-                } else {
-                    throw Converter.Error.unknownError(
-                        stderr: errorMessage,
-                        statusCode: Int(terminationStatus)
-                    )
-                }
-            }
-            
-            return outputData.shellOutput()
         }
     }
 }

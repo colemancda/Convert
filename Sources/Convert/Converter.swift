@@ -63,23 +63,31 @@ struct Converter {
         let convertVideo = (vcodec == nil) || forceHEVC
         let convertAudio = (acodec == nil) || forceHEVC
         let addCompression = size > 3_000_000_000
-        
-        let videoCommands = convertVideo ? ["-c:v", "libx265"] : ["-vcodec", "copy"]
-        let videoTag = (convertVideo || vcodec == .hevc) ? ["-tag:v", "hvc1"] : []
-        let videoQuality = (convertVideo && addCompression) ? ["-preset", "veryfast", "-crf", "25"] : []
-        let audioCommands = convertAudio ? ["-c:a", "libfdk_aac", "-b:a", "320k"] : ["-acodec", "copy"]
-        
-        return ["-i", path.encapsulated(), "-map_metadata", "-1"] + videoCommands + videoTag + videoQuality + audioCommands + [output.encapsulated()]
+
+        // Silent commands seemed not to help
+        let silentCommands: [String] = ["-loglevel", "panic"]
+        let videoCommands: [String] = convertVideo ? ["-c:v", "libx265"] : ["-vcodec", "copy"]
+        let videoTag: [String] = (convertVideo || vcodec == .hevc) ? ["-tag:v", "hvc1"] : []
+        let videoQuality: [String] = (convertVideo && addCompression) ? ["-preset", "veryfast", "-crf", "25"] : []
+        let audioCommands: [String] = convertAudio ? ["-c:a", "libfdk_aac", "-b:a", "320k"] : ["-acodec", "copy"]
+
+        // Takes an array of arrays from above and flattens them into one array
+        // Compiler could not type check the complete expression in reasonable time otherwise
+        let joined: [String] = [silentCommands, videoCommands, videoTag, videoQuality, audioCommands].joined().map { $0 }
+        return ["-i", path.encapsulated(), "-map_metadata", "-1"] + joined + [output.encapsulated()]
     }
     
     private func convert() throws {
         print("\nConverting...")
-        try Command.run(.ffmpeg, arguments: self.ffmpegArgs)
+        try! Command.run(.ffmpeg, arguments: self.ffmpegArgs)
+        guard FileManager.default.fileExists(atPath: self.outputPath) else { fatalError("ffmpeg did not work") }
         print("Finished running ffmpeg.")
         let destinationFolder = self.videoFile.parent!
-        try self.videoFile.trash()
+        try! self.videoFile.trash()
+        guard !FileManager.default.fileExists(atPath: self.videoFile.path) else { fatalError("trash did not work") }
         print("Trashed.")
-        try File(path: self.outputPath).move(to: destinationFolder)
+        try! File(path: self.outputPath).move(to: destinationFolder)
+        // TODO `guard` whether file was actually moved
         print("Moved.")
         print("Done!")
     }

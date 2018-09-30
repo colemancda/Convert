@@ -13,12 +13,11 @@ let package = Package(
             targets: ["Convert"])
     ],
     dependencies: [
-        .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.1.0"),
         .package(url: "https://github.com/JohnSundell/Files.git", from: "2.2.1"),
     ],
     targets: [
         .target(
             name: "Convert",
-            dependencies: ["ShellOut", "Files"]),
+            dependencies: ["Files"]),
     ]
 )
