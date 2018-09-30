@@ -13,11 +13,11 @@ func installDependencies() throws {
     if try !Command.which("ffmpeg") {
         try Command.brewInstall("ffmpeg", options: ["--with-x265", "--with-fdk-aac", "--HEAD"])
     }
-    
+
     // Trash
     if try !Command.which("trash") {
         try Command.brewInstall("trash")
-    }    
+    }
 }
 
 do {

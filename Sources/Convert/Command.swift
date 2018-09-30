@@ -14,7 +14,7 @@ struct Command {
         case ffmpeg = "/usr/local/bin/ffmpeg"
         case trash = "/usr/local/bin/trash"
     }
-    
+
     @discardableResult
     static func run(_ executable: Executable, arguments: [String]) throws -> String {
         let process = Process()
@@ -27,7 +27,7 @@ struct Command {
     static func run(_ executable: Executable, arguments: String) throws -> String {
         return try Command.run(executable, arguments: [arguments])
     }
-    
+
     static func which(_ program: String) throws -> Bool {
         // True if program exists, false if not
         let process = Process()
@@ -36,27 +36,27 @@ struct Command {
         process.environment = ProcessInfo.processInfo.environment
         return try !process.launchWithOutput().isEmpty
     }
-    
+
     static func brewInstall(_ packageName: String, options: [String] = []) throws {
         if try !Command.which("brew") {
             try Command.installHomebrew()
         }
 
         print("Installing \(packageName)...")
-        
+
         let process = Process()
         process.launchPath = "/usr/local/bin/brew"
         process.arguments = ["install", packageName] + options
         try process.launchWithOutput()
     }
-    
+
     private static func installHomebrew() throws {
         print("Installing homebrew...")
         let process = Process()
         process.launchPath = "/usr/bin/ruby"
         process.arguments = [
             "-e",
-            "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)".encapsulated()
+            "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)".encapsulated(),
         ]
         try process.launchWithOutput()
     }
@@ -65,20 +65,43 @@ struct Command {
 private extension Process {
     @discardableResult
     func launchWithOutput(outputHandle: FileHandle? = nil, errorHandle: FileHandle? = nil) throws -> String {
-        
+        let outputQueue = DispatchQueue(label: "bash-output-queue")
+
+        var outputData = Data()
+        var errorData = Data()
+
         let outputPipe = Pipe()
         standardOutput = outputPipe
-        
+
         let errorPipe = Pipe()
         standardError = errorPipe
-        
-        self.launch()
 
-        self.waitUntilExit()
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        
-        switch self.terminationStatus {
+        outputPipe.fileHandleForReading.readabilityHandler = { handler in
+            outputQueue.async {
+                let data = handler.availableData
+                outputData.append(data)
+                outputHandle?.write(data)
+            }
+        }
+
+        errorPipe.fileHandleForReading.readabilityHandler = { handler in
+            outputQueue.async {
+                let data = handler.availableData
+                errorData.append(data)
+                errorHandle?.write(data)
+            }
+        }
+
+        launch()
+        waitUntilExit()
+
+        outputHandle?.closeFile()
+        errorHandle?.closeFile()
+
+        outputPipe.fileHandleForReading.readabilityHandler = nil
+        errorPipe.fileHandleForReading.readabilityHandler = nil
+
+        switch terminationStatus {
         case 0: return outputData.shellOutput()
         case 1: return ""
         default:
@@ -101,13 +124,12 @@ private extension Data {
         guard let output = String(data: self, encoding: .utf8) else {
             return ""
         }
-        
+
         guard !output.hasSuffix("\n") else {
             let endIndex = output.index(before: output.endIndex)
             return String(output[..<endIndex])
         }
-        
+
         return output
-        
     }
 }
