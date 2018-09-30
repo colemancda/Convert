@@ -21,7 +21,12 @@ func installDependencies() throws {
 }
 
 do {
-    try installDependencies()
+    // Wait for keystroke so as to allow attaching external debugger via Xcode
+    print("Press any key to continue")
+    readLine()
+    // Xcode cannot see `ffmpeg` or `trash` for some reason, unless
+    // you run it manually and attach Xcode later
+    try! installDependencies()
     try Converter.convert(path: CommandLine.arguments[2], forceHEVC: Bool(CommandLine.arguments[1]))
 } catch {
     print("\nConversion error: \(error.localizedDescription)\n")
