@@ -74,12 +74,15 @@ struct Converter {
     
     private func convert() throws {
         print("\nConverting...")
-        try Command.run(.ffmpeg, arguments: self.ffmpegArgs)
+        try! Command.run(.ffmpeg, arguments: self.ffmpegArgs)
+        guard FileManager.default.fileExists(atPath: self.outputPath) else { fatalError("ffmpeg did not work") }
         print("Finished running ffmpeg.")
         let destinationFolder = self.videoFile.parent!
-        try self.videoFile.trash()
+        try! self.videoFile.trash()
+        guard !FileManager.default.fileExists(atPath: self.videoFile.path) else { fatalError("trash did not work") }
         print("Trashed.")
-        try File(path: self.outputPath).move(to: destinationFolder)
+        try! File(path: self.outputPath).move(to: destinationFolder)
+        // TODO `guard` whether file was actually moved
         print("Moved.")
         print("Done!")
     }
